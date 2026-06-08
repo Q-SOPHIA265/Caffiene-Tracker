@@ -157,12 +157,30 @@
             margin-bottom: 1.5rem;
         }
 
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0 0.5rem;
+        }
+
         .section-title {
             font-size: clamp(1rem, 3vw, 1.2rem);
             font-weight: 600;
-            margin-bottom: 1rem;
             color: white;
-            padding: 0 0.5rem;
+        }
+
+        .view-all-link {
+            color: #d4a574;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .view-all-link:hover {
+            opacity: 0.8;
         }
 
         .consumption-card {
@@ -356,6 +374,12 @@
             color: #f87171;
         }
 
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
         @media (max-width: 480px) {
             .main-display {
                 padding: 1.5rem 1rem;
@@ -388,7 +412,7 @@
                 <span>Caffeine Clock</span>
             </div>
             <div class="header-actions">
-                <button class="icon-btn" onclick="toggleSettings()">⚙️</button>
+                <a href="privacy.html" class="icon-btn" style="text-decoration: none; font-size: 1.3rem;" title="Privacy Policy">ℹ️</a>
             </div>
         </div>
 
@@ -424,7 +448,10 @@
         </div>
 
         <div class="consumption-section">
-            <div class="section-title">My Consumption</div>
+            <div class="section-header">
+                <div class="section-title">My Consumption</div>
+                <a href="history.html" class="view-all-link">View All →</a>
+            </div>
             <div id="consumption-list">
                 <div class="empty-state">
                     <div class="empty-state-icon">☕</div>
@@ -435,11 +462,11 @@
     </div>
 
     <div class="bottom-nav">
-        <a href="#" class="nav-item active" onclick="goToPage('home')"><div class="nav-icon">💬</div>Home</a>
-        <a href="#" class="nav-item" onclick="goToPage('stats')"><div class="nav-icon">📊</div>Stats</a>
+        <a href="index.html" class="nav-item active"><div class="nav-icon">💬</div>Home</a>
+        <a href="history.html" class="nav-item"><div class="nav-icon">📋</div>History</a>
         <div style="width: 60px;"></div>
-        <a href="#" class="nav-item" onclick="goToPage('history')"><div class="nav-icon">📋</div>History</a>
-        <a href="#" class="nav-item" onclick="goToPage('settings')"><div class="nav-icon">⚙️</div>Settings</a>
+        <a href="#" class="nav-item" onclick="comingSoon(event)"><div class="nav-icon">📊</div>Stats</a>
+        <a href="#" class="nav-item" onclick="comingSoon(event)"><div class="nav-icon">⚙️</div>Settings</a>
     </div>
 
     <button class="nav-center-btn" onclick="goToAddPage()">+</button>
@@ -449,6 +476,8 @@
         const HALF_LIFE = 5;
         const THRESHOLD = 1.4;
         const SLEEP_THRESHOLD = 0.5;
+        const MAX_HISTORY_DAYS = 2;
+        const MAX_HISTORY_ITEMS = 5;
 
         let chartInstance = null;
         let consumptions = [];
@@ -514,6 +543,16 @@
             return peakConcentration;
         }
 
+        function getRecentConsumptions() {
+            const now = Date.now();
+            const cutoffTime = now - (MAX_HISTORY_DAYS * 24 * 60 * 60 * 1000);
+            
+            return consumptions
+                .filter(c => c.time >= cutoffTime)
+                .sort((a, b) => b.time - a.time)
+                .slice(0, MAX_HISTORY_ITEMS);
+        }
+
         function updateDashboard() {
             const currentCaffeine = getTotalCaffeine();
             const currentConcentration = getCurrentConcentration();
@@ -546,8 +585,10 @@
         }
 
         function renderConsumptions() {
+            const recent = getRecentConsumptions();
             const list = document.getElementById('consumption-list');
-            if (consumptions.length === 0) {
+            
+            if (recent.length === 0) {
                 list.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">☕</div>
@@ -557,59 +598,42 @@
                 return;
             }
 
-            const now = Date.now();
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const yesterday = new Date(today);
             yesterday.setDate(yesterday.getDate() - 1);
 
+            let html = '';
             const todayItems = [];
             const yesterdayItems = [];
 
-            consumptions.forEach((c, i) => {
+            recent.forEach(c => {
                 const date = new Date(c.time);
                 date.setHours(0, 0, 0, 0);
 
                 if (date.getTime() === today.getTime()) {
-                    todayItems.push({ ...c, index: i });
+                    todayItems.push(c);
                 } else if (date.getTime() === yesterday.getTime()) {
-                    yesterdayItems.push({ ...c, index: i });
+                    yesterdayItems.push(c);
                 }
             });
 
-            let html = '';
-
             if (todayItems.length > 0) {
-                html += '<div style="margin-bottom: 1.5rem;">';
-                html += '<div style="font-size: 0.85rem; color: #808080; text-transform: uppercase; margin-bottom: 0.75rem; font-weight: 600;">TODAY</div>';
                 todayItems.forEach(item => {
-                    html += renderConsumptionItem(item);
+                    html += renderConsumptionCard(item);
                 });
-                html += '</div>';
             }
 
             if (yesterdayItems.length > 0) {
-                html += '<div style="margin-bottom: 1.5rem;">';
-                html += '<div style="font-size: 0.85rem; color: #808080; text-transform: uppercase; margin-bottom: 0.75rem; font-weight: 600;">YESTERDAY</div>';
                 yesterdayItems.forEach(item => {
-                    html += renderConsumptionItem(item);
+                    html += renderConsumptionCard(item);
                 });
-                html += '</div>';
-            }
-
-            if (html === '') {
-                html = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">☕</div>
-                        <div class="empty-state-text">No recent consumptions</div>
-                    </div>
-                `;
             }
 
             list.innerHTML = html;
         }
 
-        function renderConsumptionItem(item) {
+        function renderConsumptionCard(item) {
             const date = new Date(item.time);
             const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
             const icon = item.type === 'coffee' ? '☕' : '💊';
@@ -768,14 +792,9 @@
             window.location.href = 'add-caffiene.html';
         }
 
-        function goToPage(page) {
-            if (page === 'home') {
-                updateDashboard();
-            }
-        }
-
-        function toggleSettings() {
-            alert('Settings coming soon!');
+        function comingSoon(e) {
+            e.preventDefault();
+            alert('Coming soon!');
         }
 
         // Update dashboard every minute

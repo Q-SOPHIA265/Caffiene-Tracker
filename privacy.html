@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Caffeine Clock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 0 0.5rem;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: #d4a574;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: clamp(1.3rem, 5vw, 1.8rem);
+            font-weight: 700;
+            color: white;
+        }
+
+        .content {
+            background: rgba(30, 30, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 165, 116, 0.2);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .content h2 {
+            color: #d4a574;
+            font-size: 1.4rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .content h2:first-child {
+            margin-top: 0;
+        }
+
+        .content h3 {
+            color: #d4a574;
+            font-size: 1.1rem;
+            margin-top: 1.2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .content p {
+            line-height: 1.7;
+            color: #b0b0b0;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .content ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: #b0b0b0;
+            font-size: 0.95rem;
+        }
+
+        .content li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .highlight {
+            color: #d4a574;
+            font-weight: 500;
+        }
+
+        .contact-section {
+            background: rgba(212, 165, 116, 0.1);
+            border: 1px solid rgba(212, 165, 116, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .contact-section h3 {
+            color: #d4a574;
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+        }
+
+        .contact-section p {
+            color: #b0b0b0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .contact-link {
+            color: #d4a574;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .contact-link:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        .footer {
+            text-align: center;
+            color: #606060;
+            font-size: 0.85rem;
+            padding: 1rem 0;
+        }
+
+        .pb-nav {
+            padding-bottom: 50px;
+        }
+
+        @media (max-width: 480px) {
+            .content {
+                padding: 1.5rem 1rem;
+            }
+
+            .content h2 {
+                font-size: 1.2rem;
+            }
+
+            .content p,
+            .content ul,
+            .contact-section p {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container pb-nav">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">←</button>
+            <div class="header-title">Privacy Policy</div>
+            <div style="width: 40px;"></div>
+        </div>
+
+        <div class="content">
+            <h2>Privacy Policy</h2>
+            <p><span class="highlight">Effective Date:</span> June 2026</p>
+
+            <h3>1. Introduction</h3>
+            <p>Welcome to <span class="highlight">Caffeine Clock</span>. We are committed to protecting your privacy and ensuring you have a positive experience on our platform. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our application and website.</p>
+
+            <h3>2. Information We Collect</h3>
+            <p>We collect information you voluntarily provide to us, including:</p>
+            <ul>
+                <li><strong>Caffeine Consumption Data:</strong> Information about your caffeine intake, including amounts, types, and timestamps</li>
+                <li><strong>Personal Health Data:</strong> Body weight and other health-related information you choose to enter</li>
+                <li><strong>Usage Data:</strong> Information about how you interact with our application (stored locally on your device)</li>
+            </ul>
+            <p style="margin-top: 1rem;"><strong>Note:</strong> All your personal data is stored locally on your device using browser localStorage. We do not collect, store, or transmit this information to external servers.</p>
+
+            <h3>3. How We Use Your Information</h3>
+            <p>The information you provide is used exclusively to:</p>
+            <ul>
+                <li>Calculate your caffeine blood concentration levels</li>
+                <li>Provide personalized sleep impact assessments</li>
+                <li>Track your caffeine consumption history</li>
+                <li>Generate insights about your caffeine intake patterns</li>
+                <li>Improve your experience with our application</li>
+            </ul>
+
+            <h3>4. Data Security</h3>
+            <p>Your data security is our top priority. Since all data is stored locally on your device:</p>
+            <ul>
+                <li>Your information is never transmitted over the internet</li>
+                <li>Your data is not vulnerable to external data breaches</li>
+                <li>Only you have access to your consumption history</li>
+                <li>You retain complete control over your data at all times</li>
+            </ul>
+
+            <h3>5. Data Deletion</h3>
+            <p>You can delete all your data at any time by clearing your browser's localStorage or using your device's settings. Once cleared, this data cannot be recovered. There is no account required, so there is no data stored on our servers to delete.</p>
+
+            <h3>6. Third-Party Services</h3>
+            <p>Our application does not share your data with third parties. We do not use analytics services, advertising networks, or other third-party tools that would access your personal caffeine consumption data.</p>
+
+            <h3>7. Children's Privacy</h3>
+            <p>Caffeine Clock is not directed to children under the age of 13. We do not knowingly collect personal information from children under 13. If we become aware that we have collected such information, we will delete it immediately.</p>
+
+            <h3>8. Changes to This Privacy Policy</h3>
+            <p>We may update this Privacy Policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons. We encourage you to review this policy periodically to stay informed about how we protect your information.</p>
+
+            <h3>9. Your Rights</h3>
+            <p>You have the right to:</p>
+            <ul>
+                <li>Access and view all your stored data</li>
+                <li>Delete your data at any time</li>
+                <li>Understand what data is being collected</li>
+                <li>Control how your data is used within the application</li>
+            </ul>
+
+            <h3>10. Disclaimer</h3>
+            <p>Caffeine Clock is designed for informational purposes only and should not be considered medical advice. Please consult with a healthcare professional if you have concerns about your caffeine consumption or its effects on your health and sleep patterns.</p>
+
+            <div class="contact-section">
+                <h3>🤝 Questions or Concerns?</h3>
+                <p>If you have any questions, concerns, or feedback regarding this Privacy Policy or your personal data, we encourage you to reach out to us. Please visit our <a href="contact.html" class="contact-link">Contact Page</a> to get in touch with our team. We are committed to addressing your concerns promptly and professionally.</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2026 Caffeine Clock. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>
