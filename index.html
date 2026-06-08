@@ -3,386 +3,785 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caffeine & Glymphatic Calculator</title>
-    <!-- Importing Chart.js for the dynamic graphing -->
+    <title>Caffeine Clock - Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --primary-blue: #2563eb;
-            --light-blue: #eff6ff;
-            --dark-blue: #1e3a8a;
-            --primary-green: #16a34a;
-            --light-green: #f0fdf4;
-            --dark-green: #166534;
-            --danger-red: #dc2626;
-        }
-
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            font-family: system-ui, -apple-system, sans-serif;
-            max-width: 800px;
-            margin: 1rem auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
             padding: 1rem;
-            background: #f4f4f5;
-            color: #27272a;
         }
 
-        .card {
-            background: white;
-            padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
         }
 
-        h2 {
-            margin-top: 0;
-            color: var(--dark-blue);
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: clamp(1.5rem, 5vw, 2rem);
-        }
-
-        .slider-group {
-            margin-bottom: 2rem;
-            background: #fafafa;
-            padding: 1.5rem;
-            border-radius: 12px;
-            border: 1px solid #e4e4e7;
-        }
-
-        label {
+        .header {
             display: flex;
             justify-content: space-between;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            font-size: clamp(0.95rem, 3vw, 1.1rem);
-            gap: 1rem;
-            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 0 0.5rem;
         }
 
-        .value-badge {
-            background: var(--primary-blue);
-            color: white;
-            padding: 0.2rem 0.8rem;
-            border-radius: 20px;
-            font-size: clamp(0.85rem, 2.5vw, 1rem);
-            white-space: nowrap;
-        }
-
-        input[type=range] {
-            width: 100%;
-            cursor: pointer;
-            accent-color: var(--primary-blue);
-            min-height: 8px;
-        }
-
-        .results {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-top: 2rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .result-box {
-            background: var(--light-blue);
-            padding: 1.5rem;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px solid #bfdbfe;
+        .header-title {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: clamp(1.3rem, 5vw, 1.8rem);
+            font-weight: 700;
+            color: white;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #d4a574 0%, #8b6f47 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            min-height: 150px;
+            font-size: 1.5rem;
         }
 
-        .result-box.safe {
-            background: var(--light-green);
-            border-color: #bbf7d0;
+        .header-actions {
+            display: flex;
+            gap: 1rem;
         }
 
-        .result-box h3 {
-            margin: 0 0 0.5rem 0;
-            font-size: clamp(0.75rem, 2.5vw, 0.95rem);
-            color: var(--dark-blue);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            line-height: 1.3;
+        .icon-btn {
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s;
         }
 
-        .result-box.safe h3 {
-            color: var(--dark-green);
+        .icon-btn:hover {
+            transform: scale(1.1);
         }
 
-        .result-box p {
-            margin: 0;
-            font-size: clamp(1.75rem, 6vw, 2.5rem);
-            font-weight: bold;
-            color: var(--primary-blue);
-            word-break: break-word;
+        .main-display {
+            background: rgba(30, 30, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 165, 116, 0.2);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
         }
 
-        .result-box.safe p {
-            color: var(--primary-green);
+        .caffeine-amount {
+            font-size: clamp(2.5rem, 10vw, 4rem);
+            font-weight: 700;
+            color: #d4a574;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
         }
 
-        .result-box p span {
-            font-size: clamp(0.75rem, 2.5vw, 1rem);
-            font-weight: normal;
+        .caffeine-unit {
+            font-size: 1.2rem;
+            color: #d4a574;
+            display: inline;
+        }
+
+        .status-message {
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            color: #b0b0b0;
+            margin-top: 1rem;
+            min-height: 1.5em;
+        }
+
+        .status-message.good {
+            color: #4ade80;
+        }
+
+        .status-message.warning {
+            color: #fbbf24;
+        }
+
+        .status-message.danger {
+            color: #f87171;
+        }
+
+        .chart-card {
+            background: rgba(30, 30, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 165, 116, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .chart-container {
             position: relative;
-            height: 300px;
+            height: 280px;
             width: 100%;
-            margin-top: 2rem;
+            margin-bottom: 1rem;
         }
 
-        @media (max-width: 768px) {
-            .card {
-                padding: 1.5rem;
+        .chart-legend {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            font-size: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 2px;
+            border-radius: 1px;
+        }
+
+        .consumption-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: white;
+            padding: 0 0.5rem;
+        }
+
+        .consumption-card {
+            background: rgba(30, 30, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 165, 116, 0.2);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .consumption-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(212, 165, 116, 0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .consumption-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .consumption-label {
+            font-size: 0.9rem;
+            color: #e0e0e0;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            word-break: break-word;
+        }
+
+        .consumption-time {
+            font-size: 0.8rem;
+            color: #808080;
+        }
+
+        .consumption-amount {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #d4a574;
+            text-align: right;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #606060;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 0.95rem;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(212, 165, 116, 0.2);
+            display: flex;
+            justify-content: space-around;
+            padding: 0.75rem 0 1rem 0;
+            max-width: 100vw;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            color: #606060;
+            text-decoration: none;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .nav-item:hover {
+            color: #d4a574;
+        }
+
+        .nav-item.active {
+            color: #d4a574;
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+
+        .nav-center-btn {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #d4a574 0%, #8b6f47 100%);
+            border: none;
+            border-radius: 50%;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 8px 24px rgba(212, 165, 116, 0.3);
+        }
+
+        .nav-center-btn:hover {
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        .nav-center-btn:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        .pb-nav {
+            padding-bottom: 120px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-box {
+            background: rgba(30, 30, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 165, 116, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #808080;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #d4a574;
+        }
+
+        .status-zones {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            font-size: 0.75rem;
+        }
+
+        .zone {
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .zone-green {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+
+        .zone-yellow {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+
+        .zone-red {
+            background: rgba(248, 113, 113, 0.2);
+            color: #f87171;
+        }
+
+        @media (max-width: 480px) {
+            .main-display {
+                padding: 1.5rem 1rem;
             }
 
-            .results {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .slider-group {
-                padding: 1rem;
-            }
-
-            label {
-                flex-direction: column;
-                align-items: flex-start;
+            .caffeine-amount {
+                font-size: clamp(2rem, 8vw, 3rem);
             }
 
             .chart-container {
                 height: 250px;
-                margin-top: 1.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                margin: 0.5rem auto;
-                padding: 0.5rem;
             }
 
-            .card {
-                padding: 1rem;
-                border-radius: 12px;
-                box-shadow: 0 5px 10px -2px rgba(0,0,0,0.1);
-            }
-
-            h2 {
-                margin-bottom: 1.5rem;
-            }
-
-            .slider-group {
-                margin-bottom: 1.5rem;
-                padding: 1rem;
-                border-radius: 10px;
-            }
-
-            .result-box {
-                padding: 1rem;
-                border-radius: 10px;
-                min-height: 120px;
-            }
-
-            .chart-container {
-                height: 200px;
-                margin-top: 1rem;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .value-badge {
-                padding: 0.15rem 0.6rem;
-            }
-
-            .result-box {
-                min-height: 100px;
+            .consumption-card {
                 padding: 0.75rem;
+            }
+
+            .consumption-icon {
+                width: 40px;
+                height: 40px;
             }
         }
     </style>
 </head>
 <body>
-
-    <div class="card">
-        <h2>Caffeine & Glymphatic System Tracker</h2>
-        
-        <div class="slider-group">
-            <label>
-                <span>Body Weight</span> 
-                <span class="value-badge" id="weight-val">70 kg</span>
-            </label>
-            <input type="range" id="weight" min="45" max="130" value="70" step="1">
-        </div>
-        
-        <div class="slider-group">
-            <label>
-                <span>Caffeine Intake</span> 
-                <span class="value-badge" id="dose-val">85 mg</span>
-            </label>
-            <input type="range" id="dose" min="40" max="300" value="85" step="5">
-        </div>
-
-        <div class="results">
-            <div class="result-box">
-                <h3>Peak Concentration (Cmax)</h3>
-                <p><span id="cmax-val">0.00</span> <span>mg/L</span></p>
+    <div class="container pb-nav">
+        <div class="header">
+            <div class="header-title">
+                <div class="header-icon">☕</div>
+                <span>Caffeine Clock</span>
             </div>
-            <div class="result-box safe">
-                <h3>Hours to Safe Sleep Level</h3>
-                <p><span id="time-val">0.0</span> <span>hrs</span></p>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="toggleSettings()">⚙️</button>
             </div>
         </div>
 
-        <div class="chart-container">
-            <canvas id="caffeineChart"></canvas>
+        <div class="main-display">
+            <div class="caffeine-amount">
+                <span id="current-caffeine">0.0</span><span class="caffeine-unit"> mg</span>
+            </div>
+            <div class="status-message" id="status-message">No caffeine in system</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-label">Blood Concentration</div>
+                <div class="stat-value" id="concentration-value">0.00</div>
+                <div style="font-size: 0.7rem; color: #606060; margin-top: 0.3rem;">mg/L</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Peak Level Today</div>
+                <div class="stat-value" id="peak-value">0.00</div>
+                <div style="font-size: 0.7rem; color: #606060; margin-top: 0.3rem;">mg/L</div>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-container">
+                <canvas id="caffeineChart"></canvas>
+            </div>
+            <div class="status-zones">
+                <div class="zone zone-green">✓ Sleep OK</div>
+                <div class="zone zone-yellow">⚠ Caution</div>
+                <div class="zone zone-red">✗ Disrupted</div>
+            </div>
+        </div>
+
+        <div class="consumption-section">
+            <div class="section-title">My Consumption</div>
+            <div id="consumption-list">
+                <div class="empty-state">
+                    <div class="empty-state-icon">☕</div>
+                    <div class="empty-state-text">No caffeine logged yet</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script>
-        // Core Pharmacokinetic Constants
-        const VD_FACTOR = 0.67; // Volume of distribution (L/kg)
-        const HALF_LIFE = 5;    // Average half-life in hours
-        const THRESHOLD = 1.4;  // Glymphatic interference threshold (mg/L)
+    <div class="bottom-nav">
+        <a href="#" class="nav-item active" onclick="goToPage('home')"><div class="nav-icon">💬</div>Home</a>
+        <a href="#" class="nav-item" onclick="goToPage('stats')"><div class="nav-icon">📊</div>Stats</a>
+        <div style="width: 60px;"></div>
+        <a href="#" class="nav-item" onclick="goToPage('history')"><div class="nav-icon">📋</div>History</a>
+        <a href="#" class="nav-item" onclick="goToPage('settings')"><div class="nav-icon">⚙️</div>Settings</a>
+    </div>
 
-        // DOM Elements
-        const weightSlider = document.getElementById('weight');
-        const doseSlider = document.getElementById('dose');
-        const weightVal = document.getElementById('weight-val');
-        const doseVal = document.getElementById('dose-val');
-        const cmaxVal = document.getElementById('cmax-val');
-        const timeVal = document.getElementById('time-val');
-        const ctx = document.getElementById('caffeineChart').getContext('2d');
+    <button class="nav-center-btn" onclick="goToAddPage()">+</button>
+
+    <script>
+        const VD_FACTOR = 0.67;
+        const HALF_LIFE = 5;
+        const THRESHOLD = 1.4;
+        const SLEEP_THRESHOLD = 0.5;
 
         let chartInstance = null;
+        let consumptions = [];
+        let userWeight = 70;
 
-        function calculateMetrics() {
-            const weight = parseFloat(weightSlider.value);
-            const dose = parseFloat(doseSlider.value);
-
-            // Update UI Badges
-            weightVal.textContent = weight + ' kg';
-            doseVal.textContent = dose + ' mg';
-
-            // Calculate Vd and Cmax
-            const vd = weight * VD_FACTOR;
-            const cmax = dose / vd;
-
-            cmaxVal.textContent = cmax.toFixed(2);
-
-            // Calculate hours until concentration drops below 1.4 mg/L
-            let safeTime = 0;
-            if (cmax > THRESHOLD) {
-                // Based on standard half-life exponential decay formula: C(t) = Cmax * (0.5)^(t/5)
-                safeTime = HALF_LIFE * (Math.log(THRESHOLD / cmax) / Math.log(0.5));
+        function loadData() {
+            const saved = localStorage.getItem('caffeineConsumptions');
+            if (saved) {
+                consumptions = JSON.parse(saved);
             }
-            
-            timeVal.textContent = safeTime.toFixed(1);
-
-            updateChart(cmax);
+            const savedWeight = localStorage.getItem('userWeight');
+            if (savedWeight) {
+                userWeight = parseFloat(savedWeight);
+            }
+            updateDashboard();
         }
 
-        function updateChart(cmax) {
+        function saveData() {
+            localStorage.setItem('caffeineConsumptions', JSON.stringify(consumptions));
+            localStorage.setItem('userWeight', userWeight);
+        }
+
+        function getCurrentConcentration() {
+            if (consumptions.length === 0) return 0;
+
+            const vd = userWeight * VD_FACTOR;
+            const now = Date.now();
+            let totalConcentration = 0;
+
+            consumptions.forEach(c => {
+                const hoursElapsed = (now - c.time) / (1000 * 60 * 60);
+                if (hoursElapsed < 24 && hoursElapsed >= 0) {
+                    const cmax = c.amount / vd;
+                    const concentration = cmax * Math.pow(0.5, hoursElapsed / HALF_LIFE);
+                    totalConcentration += concentration;
+                }
+            });
+
+            return Math.max(0, totalConcentration);
+        }
+
+        function getTotalCaffeine() {
+            const now = Date.now();
+            return consumptions
+                .filter(c => (now - c.time) / (1000 * 60 * 60) < 24 && (now - c.time) / (1000 * 60 * 60) >= 0)
+                .reduce((sum, c) => sum + c.amount, 0);
+        }
+
+        function getPeakConcentration() {
+            if (consumptions.length === 0) return 0;
+            const vd = userWeight * VD_FACTOR;
+            const now = Date.now();
+            let peakConcentration = 0;
+
+            consumptions.forEach(c => {
+                const hoursElapsed = (now - c.time) / (1000 * 60 * 60);
+                if (hoursElapsed >= 0 && hoursElapsed < 24) {
+                    const cmax = c.amount / vd;
+                    peakConcentration = Math.max(peakConcentration, cmax);
+                }
+            });
+
+            return peakConcentration;
+        }
+
+        function updateDashboard() {
+            const currentCaffeine = getTotalCaffeine();
+            const currentConcentration = getCurrentConcentration();
+            const peakConcentration = getPeakConcentration();
+
+            document.getElementById('current-caffeine').textContent = currentCaffeine.toFixed(1);
+            document.getElementById('concentration-value').textContent = currentConcentration.toFixed(2);
+            document.getElementById('peak-value').textContent = peakConcentration.toFixed(2);
+
+            let statusMessage = '';
+            let statusClass = 'good';
+
+            if (currentConcentration <= SLEEP_THRESHOLD) {
+                statusMessage = '✓ Sleep unaffected';
+                statusClass = 'good';
+            } else if (currentConcentration <= THRESHOLD) {
+                statusMessage = '⚠ Your sleep might be disrupted';
+                statusClass = 'warning';
+            } else {
+                statusMessage = '✗ Your sleep might be significantly disrupted';
+                statusClass = 'danger';
+            }
+
+            const statusEl = document.getElementById('status-message');
+            statusEl.textContent = statusMessage;
+            statusEl.className = 'status-message ' + statusClass;
+
+            renderConsumptions();
+            updateChart();
+        }
+
+        function renderConsumptions() {
+            const list = document.getElementById('consumption-list');
+            if (consumptions.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">☕</div>
+                        <div class="empty-state-text">No caffeine logged yet</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const now = Date.now();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            const todayItems = [];
+            const yesterdayItems = [];
+
+            consumptions.forEach((c, i) => {
+                const date = new Date(c.time);
+                date.setHours(0, 0, 0, 0);
+
+                if (date.getTime() === today.getTime()) {
+                    todayItems.push({ ...c, index: i });
+                } else if (date.getTime() === yesterday.getTime()) {
+                    yesterdayItems.push({ ...c, index: i });
+                }
+            });
+
+            let html = '';
+
+            if (todayItems.length > 0) {
+                html += '<div style="margin-bottom: 1.5rem;">';
+                html += '<div style="font-size: 0.85rem; color: #808080; text-transform: uppercase; margin-bottom: 0.75rem; font-weight: 600;">TODAY</div>';
+                todayItems.forEach(item => {
+                    html += renderConsumptionItem(item);
+                });
+                html += '</div>';
+            }
+
+            if (yesterdayItems.length > 0) {
+                html += '<div style="margin-bottom: 1.5rem;">';
+                html += '<div style="font-size: 0.85rem; color: #808080; text-transform: uppercase; margin-bottom: 0.75rem; font-weight: 600;">YESTERDAY</div>';
+                yesterdayItems.forEach(item => {
+                    html += renderConsumptionItem(item);
+                });
+                html += '</div>';
+            }
+
+            if (html === '') {
+                html = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">☕</div>
+                        <div class="empty-state-text">No recent consumptions</div>
+                    </div>
+                `;
+            }
+
+            list.innerHTML = html;
+        }
+
+        function renderConsumptionItem(item) {
+            const date = new Date(item.time);
+            const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            const icon = item.type === 'coffee' ? '☕' : '💊';
+
+            return `
+                <div class="consumption-card">
+                    <div class="consumption-icon">${icon}</div>
+                    <div class="consumption-info">
+                        <div class="consumption-label">${item.label}</div>
+                        <div class="consumption-time">${timeStr}</div>
+                    </div>
+                    <div class="consumption-amount">${item.amount.toFixed(0)} mg</div>
+                </div>
+            `;
+        }
+
+        function updateChart() {
+            const vd = userWeight * VD_FACTOR;
             const labels = [];
             const concentrationData = [];
             const thresholdData = [];
+            const sleepThresholdData = [];
 
-            // Generate hourly data points for a 16-hour window
-            for (let t = 0; t <= 16; t++) {
+            const now = Date.now();
+            const maxHours = 24;
+
+            for (let t = 0; t <= maxHours; t++) {
                 labels.push(t + 'h');
-                concentrationData.push(cmax * Math.pow(0.5, t / HALF_LIFE));
+                let totalConcentration = 0;
+
+                consumptions.forEach(c => {
+                    const hoursFromConsumption = t + ((now - c.time) / (1000 * 60 * 60));
+                    if (hoursFromConsumption >= 0 && hoursFromConsumption < 48) {
+                        const cmax = c.amount / vd;
+                        const concentration = cmax * Math.pow(0.5, hoursFromConsumption / HALF_LIFE);
+                        totalConcentration += concentration;
+                    }
+                });
+
+                concentrationData.push(Math.max(0, totalConcentration));
                 thresholdData.push(THRESHOLD);
+                sleepThresholdData.push(SLEEP_THRESHOLD);
             }
 
-            // Update chart if it exists, otherwise create it
+            const ctx = document.getElementById('caffeineChart').getContext('2d');
+
             if (chartInstance) {
-                chartInstance.data.datasets[0].data = concentrationData;
-                chartInstance.update();
-            } else {
-                chartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Blood Caffeine Concentration (mg/L)',
-                                data: concentrationData,
-                                borderColor: '#2563eb',
-                                backgroundColor: 'rgba(37, 99, 235, 0.15)',
-                                fill: true,
-                                tension: 0.3,
-                                pointBackgroundColor: '#2563eb',
-                                borderWidth: 3
-                            },
-                            {
-                                label: 'Glymphatic Threshold (1.4 mg/L)',
-                                data: thresholdData,
-                                borderColor: '#dc2626',
-                                borderDash: [6, 4],
-                                borderWidth: 2,
-                                fill: false,
-                                pointRadius: 0
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.dataset.label.split(' ')[0] + ': ' + context.parsed.y.toFixed(2) + ' mg/L';
-                                    }
-                                }
-                            },
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    padding: 20,
-                                    font: { family: 'system-ui' }
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Caffeine Concentration',
+                            data: concentrationData,
+                            borderColor: '#d4a574',
+                            backgroundColor: 'rgba(212, 165, 116, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#d4a574',
+                            pointBorderColor: '#d4a574',
+                            pointRadius: 3,
+                            pointHoverRadius: 5,
+                            borderWidth: 2.5,
+                            segment: {
+                                borderColor: ctx => {
+                                    if (ctx.p1DataIndex === undefined) return '#d4a574';
+                                    return '#d4a574';
                                 }
                             }
                         },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                suggestedMax: 4.0,
-                                title: { 
-                                    display: true, 
-                                    text: 'Concentration (mg/L)',
-                                    font: { weight: 'bold' }
-                                }
-                            },
-                            x: {
-                                title: { 
-                                    display: true, 
-                                    text: 'Hours After Consumption',
-                                    font: { weight: 'bold' }
+                        {
+                            label: 'Sleep Disruption (0.5 mg/L)',
+                            data: sleepThresholdData,
+                            borderColor: '#fbbf24',
+                            borderDash: [5, 5],
+                            borderWidth: 1.5,
+                            fill: false,
+                            pointRadius: 0,
+                            tension: 0
+                        },
+                        {
+                            label: 'Glymphatic Threshold (1.4 mg/L)',
+                            data: thresholdData,
+                            borderColor: '#f87171',
+                            borderDash: [8, 4],
+                            borderWidth: 1.5,
+                            fill: false,
+                            pointRadius: 0,
+                            tension: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#d4a574',
+                            bodyColor: '#e0e0e0',
+                            borderColor: '#d4a574',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.dataset.label.includes('Threshold')) {
+                                        return context.dataset.label;
+                                    }
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' mg/L';
                                 }
                             }
                         }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: 3.0,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#808080',
+                                font: { size: 11 }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#808080',
+                                font: { size: 11 }
+                            }
+                        }
                     }
-                });
+                }
+            });
+        }
+
+        function goToAddPage() {
+            window.location.href = 'add-caffiene.html';
+        }
+
+        function goToPage(page) {
+            if (page === 'home') {
+                updateDashboard();
             }
         }
 
-        // Add event listeners so the graph updates instantly while dragging
-        weightSlider.addEventListener('input', calculateMetrics);
-        doseSlider.addEventListener('input', calculateMetrics);
+        function toggleSettings() {
+            alert('Settings coming soon!');
+        }
 
-        // Run once on load to establish the baseline graph
-        calculateMetrics();
+        // Update dashboard every minute
+        setInterval(updateDashboard, 60000);
+
+        loadData();
     </script>
 </body>
 </html>
