@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caffeine & Glymphatic Calculator</title>
+    <!-- Importing Chart.js for the dynamic graphing -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --light-blue: #eff6ff;
+            --dark-blue: #1e3a8a;
+            --primary-green: #16a34a;
+            --light-green: #f0fdf4;
+            --dark-green: #166534;
+            --danger-red: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 1rem auto;
+            padding: 1rem;
+            background: #f4f4f5;
+            color: #27272a;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--dark-blue);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: clamp(1.5rem, 5vw, 2rem);
+        }
+
+        .slider-group {
+            margin-bottom: 2rem;
+            background: #fafafa;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e4e4e7;
+        }
+
+        label {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: clamp(0.95rem, 3vw, 1.1rem);
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .value-badge {
+            background: var(--primary-blue);
+            color: white;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            white-space: nowrap;
+        }
+
+        input[type=range] {
+            width: 100%;
+            cursor: pointer;
+            accent-color: var(--primary-blue);
+            min-height: 8px;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .result-box {
+            background: var(--light-blue);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #bfdbfe;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 150px;
+        }
+
+        .result-box.safe {
+            background: var(--light-green);
+            border-color: #bbf7d0;
+        }
+
+        .result-box h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: clamp(0.75rem, 2.5vw, 0.95rem);
+            color: var(--dark-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            line-height: 1.3;
+        }
+
+        .result-box.safe h3 {
+            color: var(--dark-green);
+        }
+
+        .result-box p {
+            margin: 0;
+            font-size: clamp(1.75rem, 6vw, 2.5rem);
+            font-weight: bold;
+            color: var(--primary-blue);
+            word-break: break-word;
+        }
+
+        .result-box.safe p {
+            color: var(--primary-green);
+        }
+
+        .result-box p span {
+            font-size: clamp(0.75rem, 2.5vw, 1rem);
+            font-weight: normal;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                padding: 1.5rem;
+            }
+
+            .results {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .slider-group {
+                padding: 1rem;
+            }
+
+            label {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .chart-container {
+                height: 250px;
+                margin-top: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                margin: 0.5rem auto;
+                padding: 0.5rem;
+            }
+
+            .card {
+                padding: 1rem;
+                border-radius: 12px;
+                box-shadow: 0 5px 10px -2px rgba(0,0,0,0.1);
+            }
+
+            h2 {
+                margin-bottom: 1.5rem;
+            }
+
+            .slider-group {
+                margin-bottom: 1.5rem;
+                padding: 1rem;
+                border-radius: 10px;
+            }
+
+            .result-box {
+                padding: 1rem;
+                border-radius: 10px;
+                min-height: 120px;
+            }
+
+            .chart-container {
+                height: 200px;
+                margin-top: 1rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .value-badge {
+                padding: 0.15rem 0.6rem;
+            }
+
+            .result-box {
+                min-height: 100px;
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Caffeine & Glymphatic System Tracker</h2>
+        
+        <div class="slider-group">
+            <label>
+                <span>Body Weight</span> 
+                <span class="value-badge" id="weight-val">70 kg</span>
+            </label>
+            <input type="range" id="weight" min="45" max="130" value="70" step="1">
+        </div>
+        
+        <div class="slider-group">
+            <label>
+                <span>Caffeine Intake</span> 
+                <span class="value-badge" id="dose-val">85 mg</span>
+            </label>
+            <input type="range" id="dose" min="40" max="300" value="85" step="5">
+        </div>
+
+        <div class="results">
+            <div class="result-box">
+                <h3>Peak Concentration (Cmax)</h3>
+                <p><span id="cmax-val">0.00</span> <span>mg/L</span></p>
+            </div>
+            <div class="result-box safe">
+                <h3>Hours to Safe Sleep Level</h3>
+                <p><span id="time-val">0.0</span> <span>hrs</span></p>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="caffeineChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Core Pharmacokinetic Constants
+        const VD_FACTOR = 0.67; // Volume of distribution (L/kg)
+        const HALF_LIFE = 5;    // Average half-life in hours
+        const THRESHOLD = 1.4;  // Glymphatic interference threshold (mg/L)
+
+        // DOM Elements
+        const weightSlider = document.getElementById('weight');
+        const doseSlider = document.getElementById('dose');
+        const weightVal = document.getElementById('weight-val');
+        const doseVal = document.getElementById('dose-val');
+        const cmaxVal = document.getElementById('cmax-val');
+        const timeVal = document.getElementById('time-val');
+        const ctx = document.getElementById('caffeineChart').getContext('2d');
+
+        let chartInstance = null;
+
+        function calculateMetrics() {
+            const weight = parseFloat(weightSlider.value);
+            const dose = parseFloat(doseSlider.value);
+
+            // Update UI Badges
+            weightVal.textContent = weight + ' kg';
+            doseVal.textContent = dose + ' mg';
+
+            // Calculate Vd and Cmax
+            const vd = weight * VD_FACTOR;
+            const cmax = dose / vd;
+
+            cmaxVal.textContent = cmax.toFixed(2);
+
+            // Calculate hours until concentration drops below 1.4 mg/L
+            let safeTime = 0;
+            if (cmax > THRESHOLD) {
+                // Based on standard half-life exponential decay formula: C(t) = Cmax * (0.5)^(t/5)
+                safeTime = HALF_LIFE * (Math.log(THRESHOLD / cmax) / Math.log(0.5));
+            }
+            
+            timeVal.textContent = safeTime.toFixed(1);
+
+            updateChart(cmax);
+        }
+
+        function updateChart(cmax) {
+            const labels = [];
+            const concentrationData = [];
+            const thresholdData = [];
+
+            // Generate hourly data points for a 16-hour window
+            for (let t = 0; t <= 16; t++) {
+                labels.push(t + 'h');
+                concentrationData.push(cmax * Math.pow(0.5, t / HALF_LIFE));
+                thresholdData.push(THRESHOLD);
+            }
+
+            // Update chart if it exists, otherwise create it
+            if (chartInstance) {
+                chartInstance.data.datasets[0].data = concentrationData;
+                chartInstance.update();
+            } else {
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Blood Caffeine Concentration (mg/L)',
+                                data: concentrationData,
+                                borderColor: '#2563eb',
+                                backgroundColor: 'rgba(37, 99, 235, 0.15)',
+                                fill: true,
+                                tension: 0.3,
+                                pointBackgroundColor: '#2563eb',
+                                borderWidth: 3
+                            },
+                            {
+                                label: 'Glymphatic Threshold (1.4 mg/L)',
+                                data: thresholdData,
+                                borderColor: '#dc2626',
+                                borderDash: [6, 4],
+                                borderWidth: 2,
+                                fill: false,
+                                pointRadius: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label.split(' ')[0] + ': ' + context.parsed.y.toFixed(2) + ' mg/L';
+                                    }
+                                }
+                            },
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    font: { family: 'system-ui' }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                suggestedMax: 4.0,
+                                title: { 
+                                    display: true, 
+                                    text: 'Concentration (mg/L)',
+                                    font: { weight: 'bold' }
+                                }
+                            },
+                            x: {
+                                title: { 
+                                    display: true, 
+                                    text: 'Hours After Consumption',
+                                    font: { weight: 'bold' }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Add event listeners so the graph updates instantly while dragging
+        weightSlider.addEventListener('input', calculateMetrics);
+        doseSlider.addEventListener('input', calculateMetrics);
+
+        // Run once on load to establish the baseline graph
+        calculateMetrics();
+    </script>
+</body>
+</html>
