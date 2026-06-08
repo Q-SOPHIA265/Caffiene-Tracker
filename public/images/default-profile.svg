@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#b39f7f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7a6247;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="100" fill="url(#bgGradient)"/>
+  
+  <!-- User icon (professional silhouette) -->
+  <g fill="white" opacity="0.9">
+    <!-- Head -->
+    <circle cx="100" cy="60" r="25"/>
+    <!-- Body/shoulders -->
+    <path d="M 75 90 Q 75 85 100 85 Q 125 85 125 90 L 130 150 Q 130 160 120 160 L 80 160 Q 70 160 70 150 Z"/>
+  </g>
+  
+  <!-- Decorative coffee cup -->
+  <g transform="translate(140, 140)" opacity="0.7">
+    <path d="M -5 0 L -8 15 Q -8 18 -5 18 L 8 18 Q 11 18 11 15 L 8 0" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M 10 5 Q 15 5 15 8" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+</svg>
