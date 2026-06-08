@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Caffeine Intake - Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --light-blue: #eff6ff;
+            --dark-blue: #1e3a8a;
+            --primary-green: #16a34a;
+            --light-green: #f0fdf4;
+            --dark-green: #166534;
+            --danger-red: #dc2626;
+            --warning-yellow: #d97706;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 900px;
+            margin: 1rem auto;
+            padding: 1rem;
+            background: #f4f4f5;
+            color: #27272a;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--dark-blue);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: clamp(1.5rem, 5vw, 2rem);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+            background: #fafafa;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e4e4e7;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: clamp(0.95rem, 3vw, 1.1rem);
+        }
+
+        input[type="number"],
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e4e4e7;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus,
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .radio-option input[type="radio"] {
+            width: auto;
+            accent-color: var(--primary-blue);
+            cursor: pointer;
+        }
+
+        .radio-option label {
+            margin-bottom: 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .conditional {
+            display: none;
+        }
+
+        .conditional.active {
+            display: block;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-primary:hover {
+            background: var(--dark-blue);
+        }
+
+        .btn-secondary {
+            background: #e4e4e7;
+            color: #27272a;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-secondary:hover {
+            background: #d4d4d8;
+        }
+
+        .consumption-history {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e4e4e7;
+        }
+
+        .consumption-history h3 {
+            color: var(--dark-blue);
+            margin-bottom: 1rem;
+        }
+
+        .consumption-item {
+            background: #fafafa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .consumption-info {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .consumption-info p {
+            margin: 0.25rem 0;
+            font-size: 0.95rem;
+        }
+
+        .consumption-amount {
+            font-weight: bold;
+            color: var(--primary-blue);
+            font-size: 1.1rem;
+        }
+
+        .consumption-time {
+            color: #78716c;
+            font-size: 0.85rem;
+        }
+
+        .btn-delete {
+            background: var(--danger-red);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .btn-delete:hover {
+            background: #b91c1c;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-top: 2rem;
+            padding: 1rem 0;
+        }
+
+        .interpretation {
+            background: var(--light-blue);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-blue);
+            margin-top: 2rem;
+        }
+
+        .interpretation h4 {
+            margin: 0 0 1rem 0;
+            color: var(--dark-blue);
+        }
+
+        .interpretation p {
+            margin: 0.5rem 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .status-good {
+            color: var(--primary-green);
+            font-weight: 600;
+        }
+
+        .status-warning {
+            color: var(--warning-yellow);
+            font-weight: 600;
+        }
+
+        .status-bad {
+            color: var(--danger-red);
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #78716c;
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                padding: 1.5rem;
+            }
+
+            .input-group {
+                padding: 1rem;
+            }
+
+            .consumption-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                min-width: unset;
+                flex: unset;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                margin: 0.5rem auto;
+                padding: 0.5rem;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+
+            h2 {
+                margin-bottom: 1.5rem;
+            }
+
+            .input-group {
+                margin-bottom: 1rem;
+                padding: 1rem;
+            }
+
+            .radio-group {
+                gap: 1rem;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Add Caffeine Intake</h2>
+
+        <div class="input-group">
+            <label>Select Input Type:</label>
+            <div class="radio-group">
+                <div class="radio-option">
+                    <input type="radio" id="caffeine-direct" name="input-type" value="caffeine" checked>
+                    <label for="caffeine-direct">Direct Caffeine Amount</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="coffee-amount" name="input-type" value="coffee">
+                    <label for="coffee-amount">Coffee Amount</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Body Weight (kg):</label>
+            <input type="number" id="weight" min="40" max="200" value="70" step="0.5">
+        </div>
+
+        <!-- Caffeine Direct Input -->
+        <div id="caffeine-input" class="input-group conditional active">
+            <label>Caffeine Amount (mg):</label>
+            <input type="number" id="caffeine-amount" min="0" max="500" value="80" step="1">
+        </div>
+
+        <!-- Coffee Input -->
+        <div id="coffee-input" class="input-group conditional">
+            <label>Coffee Amount (grams):</label>
+            <input type="number" id="coffee-amount-value" min="0" max="100" value="10" step="0.5">
+            
+            <label style="margin-top: 1rem;">Coffee Type:</label>
+            <select id="coffee-type">
+                <option value="espresso">Espresso (63 mg per 1g)</option>
+                <option value="americano">Americano (12 mg per 1g)</option>
+                <option value="drip">Drip Coffee (15 mg per 1g)</option>
+                <option value="latte">Latte (4 mg per 1g)</option>
+                <option value="instant">Instant Coffee (28 mg per 1g)</option>
+                <option value="cold_brew">Cold Brew (20 mg per 1g)</option>
+            </select>
+
+            <label style="margin-top: 1rem;">Purity Percentage (%):</label>
+            <input type="number" id="coffee-purity" min="0" max="100" value="100" step="1">
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="addIntake()">Add Intake</button>
+            <a href="caffiene-tracker.html" class="btn btn-secondary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Back to Home</a>
+        </div>
+
+        <!-- Graph and Interpretation -->
+        <div class="chart-container">
+            <canvas id="intakeChart"></canvas>
+        </div>
+
+        <div class="interpretation">
+            <h4>Current Caffeine Status</h4>
+            <p><strong>Total Caffeine Consumed:</strong> <span id="total-caffeine">0</span> mg</p>
+            <p><strong>Current Concentration:</strong> <span id="current-concentration">0.00</span> mg/L</p>
+            <p><strong>Status:</strong> <span id="status-text" class="status-good">No caffeine in system</span></p>
+            <p><strong>Sleep Impact:</strong> <span id="sleep-impact">Sleep unaffected</span></p>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #78716c;">
+                <strong>Green zone (≤0.5 mg/L):</strong> Sleep unaffected | 
+                <strong>Yellow zone (0.5-1.4 mg/L):</strong> Minor sleep disruption | 
+                <strong>Red zone (>1.4 mg/L):</strong> Sleep likely disrupted
+            </p>
+        </div>
+
+        <div class="consumption-history">
+            <h3>My Consumption</h3>
+            <div id="consumption-list"></div>
+        </div>
+    </div>
+
+    <script>
+        const VD_FACTOR = 0.67;
+        const HALF_LIFE = 5;
+        const THRESHOLD = 1.4;
+        const SLEEP_THRESHOLD = 0.5;
+
+        const caffeineDirect = 95;
+        const americano = 12;
+        const drip = 15;
+        const latte = 4;
+        const espresso = 63;
+        const instant = 28;
+        const coldBrew = 20;
+
+        const COFFEE_CONTENT = {
+            espresso: 63,
+            americano: 12,
+            drip: 15,
+            latte: 4,
+            instant: 28,
+            cold_brew: 20
+        };
+
+        let chartInstance = null;
+        let consumptions = [];
+
+        // Load data from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('caffeineConsumptions');
+            if (saved) {
+                consumptions = JSON.parse(saved);
+            }
+            renderConsumptions();
+            updateChart();
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('caffeineConsumptions', JSON.stringify(consumptions));
+        }
+
+        // Toggle input fields based on type
+        document.querySelectorAll('input[name="input-type"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.getElementById('caffeine-input').classList.toggle('active', this.value === 'caffeine');
+                document.getElementById('coffee-input').classList.toggle('active', this.value === 'coffee');
+            });
+        });
+
+        function addIntake() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const inputType = document.querySelector('input[name="input-type"]:checked').value;
+            let caffeineAmount = 0;
+
+            if (inputType === 'caffeine') {
+                caffeineAmount = parseFloat(document.getElementById('caffeine-amount').value);
+            } else {
+                const coffeeAmount = parseFloat(document.getElementById('coffee-amount-value').value);
+                const coffeeType = document.getElementById('coffee-type').value;
+                const purity = parseFloat(document.getElementById('coffee-purity').value) / 100;
+                const content = COFFEE_CONTENT[coffeeType];
+                caffeineAmount = coffeeAmount * content * purity;
+            }
+
+            if (caffeineAmount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+
+            const now = new Date();
+            const consumption = {
+                amount: caffeineAmount,
+                time: now.getTime(),
+                label: inputType === 'caffeine' ? `${caffeineAmount.toFixed(1)} mg Caffeine` : `${parseFloat(document.getElementById('coffee-amount-value').value).toFixed(1)}g ${document.getElementById('coffee-type').options[document.getElementById('coffee-type').selectedIndex].text}`,
+                type: inputType
+            };
+
+            consumptions.push(consumption);
+            saveData();
+            renderConsumptions();
+            updateChart();
+            resetForm();
+        }
+
+        function deleteConsumption(index) {
+            consumptions.splice(index, 1);
+            saveData();
+            renderConsumptions();
+            updateChart();
+        }
+
+        function resetForm() {
+            document.getElementById('caffeine-amount').value = '80';
+            document.getElementById('coffee-amount-value').value = '10';
+            document.getElementById('coffee-purity').value = '100';
+        }
+
+        function renderConsumptions() {
+            const list = document.getElementById('consumption-list');
+            if (consumptions.length === 0) {
+                list.innerHTML = '<div class="empty-state">No caffeine consumptions recorded yet.</div>';
+                return;
+            }
+
+            list.innerHTML = consumptions.map((c, i) => {
+                const date = new Date(c.time);
+                const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                return `
+                    <div class="consumption-item">
+                        <div class="consumption-info">
+                            <p class="consumption-amount">${c.amount.toFixed(1)} mg</p>
+                            <p>${c.label}</p>
+                            <p class="consumption-time">${dateStr} at ${timeStr}</p>
+                        </div>
+                        <button class="btn-delete" onclick="deleteConsumption(${i})">Delete</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getCurrentConcentration() {
+            if (consumptions.length === 0) return 0;
+
+            const weight = parseFloat(document.getElementById('weight').value);
+            const vd = weight * VD_FACTOR;
+            const now = Date.now();
+            let totalConcentration = 0;
+
+            consumptions.forEach(c => {
+                const hoursElapsed = (now - c.time) / (1000 * 60 * 60);
+                if (hoursElapsed < 24) {
+                    const cmax = c.amount / vd;
+                    const concentration = cmax * Math.pow(0.5, hoursElapsed / HALF_LIFE);
+                    totalConcentration += concentration;
+                }
+            });
+
+            return totalConcentration;
+        }
+
+        function updateChart() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const vd = weight * VD_FACTOR;
+            const labels = [];
+            const concentrationData = [];
+            const thresholdData = [];
+            const sleepThresholdData = [];
+            const therapeuticMaxData = [];
+            const therapeuticMinData = [];
+
+            // Calculate therapeutic range (approximate)
+            let therapeuticMax = 0;
+            let therapeuticMin = 0;
+
+            consumptions.forEach(c => {
+                const cmax = c.amount / vd;
+                therapeuticMax = Math.max(therapeuticMax, cmax * 0.8);
+                therapeuticMin = Math.min(therapeuticMin || cmax * 0.5, cmax * 0.5);
+            });
+
+            const now = Date.now();
+            const maxHours = 24;
+
+            for (let t = 0; t <= maxHours; t++) {
+                labels.push(t + 'h');
+                let totalConcentration = 0;
+
+                consumptions.forEach(c => {
+                    const hoursFromConsumption = t + ((now - c.time) / (1000 * 60 * 60));
+                    if (hoursFromConsumption >= 0 && hoursFromConsumption < 24) {
+                        const cmax = c.amount / vd;
+                        const concentration = cmax * Math.pow(0.5, hoursFromConsumption / HALF_LIFE);
+                        totalConcentration += concentration;
+                    }
+                });
+
+                concentrationData.push(Math.max(0, totalConcentration));
+                thresholdData.push(THRESHOLD);
+                sleepThresholdData.push(SLEEP_THRESHOLD);
+                therapeuticMaxData.push(therapeuticMax || null);
+                therapeuticMinData.push(therapeuticMin || null);
+            }
+
+            const ctx = document.getElementById('intakeChart').getContext('2d');
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Caffeine Concentration (mg/L)',
+                            data: concentrationData,
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.15)',
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#2563eb',
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'Sleep Disruption Threshold (0.5 mg/L)',
+                            data: sleepThresholdData,
+                            borderColor: '#f59e0b',
+                            borderDash: [4, 4],
+                            borderWidth: 2,
+                            fill: false,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Glymphatic Threshold (1.4 mg/L)',
+                            data: thresholdData,
+                            borderColor: '#dc2626',
+                            borderDash: [6, 4],
+                            borderWidth: 2,
+                            fill: false,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: { family: 'system-ui', size: 12 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.dataset.label.includes('Threshold')) {
+                                        return context.dataset.label;
+                                    }
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' mg/L';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: 3.0
+                        }
+                    }
+                }
+            });
+
+            // Update interpretation
+            const currentConcentration = getCurrentConcentration();
+            const totalCaffeine = consumptions.reduce((sum, c) => sum + c.amount, 0);
+            document.getElementById('total-caffeine').textContent = totalCaffeine.toFixed(1);
+            document.getElementById('current-concentration').textContent = currentConcentration.toFixed(2);
+
+            let statusText = '';
+            let statusClass = 'status-good';
+            let sleepText = '';
+
+            if (currentConcentration <= SLEEP_THRESHOLD) {
+                statusText = 'Optimal - Sleep unaffected';
+                sleepText = '✓ Sleep unaffected';
+            } else if (currentConcentration <= THRESHOLD) {
+                statusText = 'Caution - Minor sleep disruption possible';
+                statusClass = 'status-warning';
+                sleepText = '⚠ Minor sleep disruption possible';
+            } else {
+                statusText = 'Alert - Significant sleep disruption likely';
+                statusClass = 'status-bad';
+                sleepText = '✗ Sleep likely disrupted';
+            }
+
+            document.getElementById('status-text').textContent = statusText;
+            document.getElementById('status-text').className = statusClass;
+            document.getElementById('sleep-impact').textContent = sleepText;
+        }
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>
